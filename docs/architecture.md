@@ -1,24 +1,24 @@
 # NixOS Configuration Architecture Document
 
-### 1. Introduction
+## 1. Introduction
 
 This document outlines the holistic architecture for the NixOS Configuration project. It establishes the foundational principles of **modularity, reusability, and a strict separation of concerns** that will govern the declarative system. The primary goal is to create a robust, scalable blueprint that not only ensures consistency across all target machines but is also explicitly designed for safe and effective modification by AI agents.
 
-#### Starter Template or Existing Project
+### Starter Template or Existing Project
 The project will be built from scratch. This "first-principles" approach was chosen to enforce a clean, unopinionated structure tailored precisely to the project's goals, avoiding the potential complexity or cruft from external templates. This ensures the resulting architecture is both minimal and highly intentional.
 
-#### Change Log
+### Change Log
 | Date | Version | Description | Author |
 | :--- | :--- | :--- | :--- |
 | 2025-09-15 | 1.0 | Initial architecture draft | Winston (Architect) |
 
 ---
-### 2. High Level Architecture
+## 2. High Level Architecture
 
-#### Technical Summary
+### Technical Summary
 The system's architecture is a declarative monorepo built on the NixOS ecosystem, utilizing Flakes for hermetic dependency management. It is composed of modular components, including distinct host-specific profiles (laptop, desktop, servers), reusable shared modules for common software, and user-level configurations managed by `home-manager`. Key architectural patterns include a strict separation of hardware-specific concerns from general software configuration, declarative disk management via `disko`, and secure secret handling with `sops-nix`. This approach directly supports the PRD's primary goals of achieving a reproducible, consistent, and rapidly provisioned environment across multiple machines.
 
-#### High Level Overview
+### High Level Overview
 * **Architectural Style**: The system employs a **Declarative Configuration** model, where the desired state of each machine is explicitly defined in code, and the Nix tooling is responsible for realizing that state.
 * **Repository Structure**: As specified in the PRD, the project will use a **Monorepo** structure to house all configurations for all target machines in a single version-controlled repository.
 * **Primary Data Flow**: The primary flow begins with the root `flake.nix`, which imports host-specific configurations. Each host configuration then composes shared modules and its own unique hardware settings to produce a final, bootable system derivation.
@@ -27,7 +27,7 @@ The system's architecture is a declarative monorepo built on the NixOS ecosystem
     * **`disko` for Disk Management**: Enables fully declarative and automated partitioning.
     * **`home-manager` Integration**: Ensures the entire user environment is reproducible.
 
-#### High Level Project Diagram
+### High Level Project Diagram
 ```mermaid
 graph TD
     subgraph "GitHub Monorepo"
@@ -66,29 +66,29 @@ graph TD
     T2 --> B3
 ```
 
-#### Architectural and Design Patterns
+### Architectural and Design Patterns
 * **Modular Configuration**: System definitions are broken into small, reusable Nix modules that can be composed to build a complete system.
 * **Separation of Concerns (Hardware vs. Software)**: Host configurations are explicitly divided between modules that define the software environment and modules that define hardware-specific needs.
 * **Declarative State Management**: Every aspect of the system is defined declaratively in Nix files.
 
-#### Known Risks and Mitigation Strategies
+### Known Risks and Mitigation Strategies
 * **Complexity Creep**: The "from scratch" approach requires discipline to prevent creating an overly complex web of custom modules. **Mitigation**: Adherence to the defined component structure and coding standards is critical.
 * **Secret Management Brittleness**: `sops-nix` introduces a dependency on key management. **Mitigation**: The process for onboarding new machines and users to the secret management system must be thoroughly documented in the `README.md`.
 * **Hardware-Specific Divergence**: Solutions for specific hardware (like the ASUS laptop) may require complex overrides. **Mitigation**: Keep hardware modules as isolated as possible and favor configuration flags over complex conditional logic in shared modules.
 * **Flake Update Burden**: Updating flake inputs like `nixpkgs` can cause a cascade of build failures. **Mitigation**: Updates should be done on a separate branch and thoroughly tested via the VM strategy before being merged.
 
-#### Analysis of Diagram Flow and Dependencies
+### Analysis of Diagram Flow and Dependencies
 The logical flow is one of **composition and specialization**. We start with a single root (`flake.nix`), define shared building blocks (`Shared Modules`, `User Configs`), and then compose them into specific `Host Profiles`, layering on hardware details and specialized tools only where required. This flow ensures maximum reusability and a clear dependency chain.
 
 ---
-### 3. Tech Stack
+## 3. Tech Stack
 
-#### Cloud Infrastructure
+### Cloud Infrastructure
 * **Provider**: Provider Agnostic (Initial targets: Hetzner, DigitalOcean)
 * **Key Services**: Generic Compute (Linux VPS), Block Storage, DNS
 * **Deployment Regions**: User-defined at deployment time (e.g., `us-east`, `fsn1-dc14`)
 
-#### Technology Stack Table
+### Technology Stack Table
 | Category | Technology | Version | Purpose | Rationale |
 | :--- | :--- | :--- | :--- | :--- |
 | OS / Language | NixOS / Nix | `nixpkgs-24.05` | Declarative OS & package management | Core of the project for reproducibility. |
@@ -102,44 +102,44 @@ The logical flow is one of **composition and specialization**. We start with a s
 | VM Testing | NixOS VM Tests| N/A | Pre-deployment validation | Built-in NixOS feature for robust, automated testing. |
 
 ---
-### 4. Data Models
+## 4. Data Models
 
-#### Host
+### Host
 * **Purpose**: Represents a single, complete, and buildable machine configuration.
 * **Attributes**: `name`, `system`, `modules`, `users`, `diskConfig`.
 * **Relationships**: A Host is composed of Modules, has Users, and may use Secrets and a Hardware-Specific Module.
 
-#### User
+### User
 * **Purpose**: Represents a user account and their environment managed by Home Manager.
 * **Attributes**: `username`, `homeDirectory`, `shell`, `packages`, `dotfiles`.
 * **Relationships**: A User belongs to one or more Hosts and has one Home Manager Configuration.
 
-#### Module
+### Module
 * **Purpose**: Represents a self-contained and reusable unit of configuration.
 * **Attributes**: `name`, `type` ('Shared' or 'Hardware-Specific'), `path`, `configuration`.
 * **Relationships**: A Module can be imported by Hosts and can be composed of other Modules.
 
 ---
-### 5. Components
+## 5. Components
 
-#### Hosts Component
+### Hosts Component
 * **Responsibility**: Contains the top-level, final configurations for each target machine.
 * **Interfaces**: Exposes a `nixosConfigurations.<hostname>` output in the root `flake.nix`.
 
-#### Modules Component
+### Modules Component
 * **Responsibility**: The core library containing all reusable and specialized units of configuration.
 * **Sub-Components**: Organized into `hardware/`, `programs/`, `services/`, and `profiles/`.
 
-#### Users Component
+### Users Component
 * **Responsibility**: Contains all user-specific configurations, managed by Home Manager.
 
-#### Secrets Component
+### Secrets Component
 * **Responsibility**: Manages all encrypted sensitive data for the system using `sops-nix`.
 
-#### Scripts Component
+### Scripts Component
 * **Responsibility**: Contains operational and automation scripts like `install.sh`.
 
-#### Component Diagram
+### Component Diagram
 ```mermaid
 graph TD
     subgraph "NixOS Monorepo"
@@ -186,9 +186,9 @@ graph TD
 ```
 
 ---
-### 6. Core Workflows
+## 6. Core Workflows
 
-#### Workflow 1: New Machine Installation
+### Workflow 1: New Machine Installation
 ```mermaid
 sequenceDiagram
     actor Administrator
@@ -214,7 +214,7 @@ sequenceDiagram
     end
 ```
 
-#### Workflow 2: System Update and Rollback
+### Workflow 2: System Update and Rollback
 ```mermaid
 sequenceDiagram
     actor Administrator
@@ -242,7 +242,7 @@ sequenceDiagram
     end
 ```
 
-#### Workflow 3: Updating a Shared Module
+### Workflow 3: Updating a Shared Module
 ```mermaid
 sequenceDiagram
     actor Administrator
@@ -267,7 +267,7 @@ sequenceDiagram
 ```
 
 ---
-### 7. Source Tree
+## 7. Source Tree
 
 ```plaintext
 hbohlen-io/
@@ -301,44 +301,44 @@ hbohlen-io/
 ```
 
 ---
-### 8. Infrastructure and Deployment
+## 8. Infrastructure and Deployment
 The primary Infrastructure as Code (IaC) is the Nix configuration itself. Deployment is handled via a Git-based promotion flow, where changes are merged to `main`, pulled on the target host, and activated with `nixos-rebuild switch`. Rollbacks are handled by NixOS's built-in generation management.
 
 ---
-### 9. Error Handling Strategy
+## 9. Error Handling Strategy
 The strategy relies on **Build-Time Validation** via the Nix evaluator, **Structured Logging** via `systemd-journald`, and the built-in **Rollback Strategy** for deployment failures. Long-term, this will be supplemented by a centralized observability platform like Datadog.
 
 ---
-### 10. Coding Standards
+## 10. Coding Standards
 All Nix code must be formatted with `nixpkgs-fmt`. The standards enforce strict separation of concerns (e.g., no hardware paths in shared modules) and the use of Nix's module system for configuration.
 
 ---
-### 11. Test Strategy and Standards
+## 11. Test Strategy and Standards
 The strategy is **VM-First Validation**. No change is deployed until it successfully builds and boots in a QEMU VM using NixOS's built-in testing framework. This will be automated via GitHub Actions in the future.
 
 ---
-### 12. Security
+## 12. Security
 The security posture relies on declarative management of user privileges, SSH public-key authentication for servers, full-disk encryption (LUKS) for physical machines, and encrypted secret management via `sops-nix`.
 
 ---
-### 13. Next Steps
+## 13. Next Steps
 This architecture document is now complete. The next logical step is a final review by the Product Owner (`po`) to ensure alignment with the product vision. Once approved, the Scrum Master (`sm`) can begin the development phase by creating the first story (Story 1.1) from the PRD, using this architecture as the definitive technical guide.
 
 ---
-### Checklist Results Report
+## Checklist Results Report
 
-#### Executive Summary
+### Executive Summary
 * **Project Type**: Backend / System Configuration (No UI)
 * **Overall Architecture Readiness**: **High**
 * **Critical Risks Identified**: 0
 * **Key Strengths**: The architecture demonstrates exceptional clarity, modularity, and a strong alignment with NixOS best practices. The design is highly suitable for both manual and AI-driven development.
 * **Sections Evaluated**: All sections were evaluated except for "Frontend Design" and "Accessibility," which are not applicable to this project.
 
-#### Section Analysis
+### Section Analysis
 All applicable sections of the checklist have a **100% pass rate**. The design decisions are well-supported by the PRD and our interactive discussions, leaving no significant gaps or ambiguities.
 
-#### Recommendations
+### Recommendations
 There are no "must-fix" items. The architecture is considered complete and ready for the development phase.
 
-#### AI Implementation Readiness
+### AI Implementation Readiness
 The readiness for AI agent implementation is **High**. The declarative nature of the project, combined with the clear Source Tree, explicit Coding Standards, and modular design, provides a structured environment where an AI agent can effectively and safely make modifications.
