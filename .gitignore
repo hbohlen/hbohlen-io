@@ -1,31 +1,15 @@
-# BMad/Gemini workspace files
-.bmad-core/
-.gemini/
+# Nix-related files
+.direnv/
+.envrc
+result
+result-*
+*.drv
+*.drv.json
+*.nix.swp
+*.nixc
+.nix-helpers/
 
-# GitHub specific files
-.github/
+# SOPS-related files
+.sops/
 
-# VSCode workspace files
-.vscode/
 
-# Dependency directories
-node_modules/
-vendor/
-
-# Build output
-dist/
-build/
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Log files
-*.log
-npm-debug.log*
-yarn-error.log*
-
-# Environment variables
-.env
-.env.local
-.env.*
