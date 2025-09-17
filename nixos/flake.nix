@@ -37,6 +37,24 @@
           }
         ];
       };
+
+      desktop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          # Disk configuration and main system config
+          disko.nixosModules.disko
+          ./hosts/desktop/disko.nix
+          ./hosts/desktop/configuration.nix
+
+          # Home manager
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.hbohlen = import ./users/hbohlen/home.nix;
+          }
+        ];
+      };
     };
 
     homeConfigurations = {
