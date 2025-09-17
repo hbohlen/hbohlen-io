@@ -9,7 +9,8 @@ result-*
 *.nixc
 .nix-helpers/
 
-# SOPS-related files
+# Secrets files
 .sops/
+nixos/secrets/secrets.yaml
 
 

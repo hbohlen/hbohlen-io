@@ -7,23 +7,8 @@
     ../../modules/packages.nix
   ];
 
-  # Import sops-nix for secrets management
-  sops.defaultSopsFile = ../../secrets/secrets.yaml;
-  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets = {
-    github_token = {};
-    openai_api_key = {};
-    database_password = {
-      sopsFile = ../../secrets/secrets.yaml;
-      path = "database.password";
-    };
-    ssh_private_key = {
-      mode = "0600";
-      owner = config.users.users.hbohlen.name;
-    };
-    wireguard_private_key = {};
-    tailscale_auth_key = {};
-  };
+  # Secrets are managed via 1Password CLI
+  # Run scripts/setup-1password-secrets.sh to retrieve secrets
 
   # Bootloader - server-specific
   boot = {
