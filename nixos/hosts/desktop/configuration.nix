@@ -1,14 +1,15 @@
 { config, pkgs, ... }:
 
 {
-  # Bootloader, Kernel, and Hardware Tweaks
-  boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
+  # Import shared modules
+  imports = [
+    ../../modules/common.nix
+    ../../modules/users.nix
+    ../../modules/packages.nix
+  ];
 
+  # Bootloader - hardware-specific kernel parameters and modules
+  boot = {
     # Kernel parameters for MSI Z590 + NVIDIA + Intel graphics
     kernelParams = [
       "quiet"
@@ -22,30 +23,14 @@
     extraModulePackages = [ ];
   };
 
-  # Networking - MSI Z590 has multiple network interfaces
-  networking = {
-    hostName = "desktop";
-    networkmanager.enable = true;
-  };
+  # Host-specific networking
+  networking.hostName = "desktop";
 
-  # Timezone and locale
-  time.timeZone = "America/Chicago";
-  i18n.defaultLocale = "en_US.UTF-8";
+  # User account - add desktop-specific groups
+  users.users.hbohlen.extraGroups = [ "libvirtd" "docker" ];
 
-  # User Account
-  users.users.hbohlen = {
-    isNormalUser = true;
-    description = "Hayden";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "docker" ];
-  };
-
-  # Allow unfree packages for NVIDIA drivers
-  nixpkgs.config.allowUnfree = true;
-
-  # Hardware Configuration
+  # Hardware Configuration - desktop-specific
   hardware = {
-    enableRedistributableFirmware = true;
-
     # NVIDIA Graphics Configuration
     nvidia = {
       modesetting.enable = true;
@@ -60,17 +45,10 @@
     cpu.intel.updateMicrocode = true;
   };
 
-  # Essential Services and Daemons
+  # Desktop-specific services
   services = {
-    # Display Manager and Desktop
-    xserver = {
-      enable = true;
-      displayManager.gdm.enable = true;
-      desktopManager.gnome.enable = true;
-
-      # Configure NVIDIA as primary GPU
-      videoDrivers = [ "nvidia" ];
-    };
+    # Configure NVIDIA as primary GPU
+    xserver.videoDrivers = [ "nvidia" ];
 
     # Pipewire for audio
     pipewire = {
@@ -85,34 +63,9 @@
     pulseaudio.enable = false;
   };
 
-  # Virtualization
+  # Virtualization - desktop-specific
   virtualisation = {
     libvirtd.enable = true;
     docker.enable = true;
   };
-
-  # System-wide packages
-  environment.systemPackages = with pkgs; [
-    git
-    wget
-    curl
-    vim
-    htop
-    btop
-    fastfetch
-    gnome-tweaks
-    pciutils
-    usbutils
-  ];
-
-  # Enable modern Nix features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Security
-  security = {
-    rtkit.enable = true; # For Pipewire
-    polkit.enable = true;
-  };
-
-  system.stateVersion = "24.05";
 }
