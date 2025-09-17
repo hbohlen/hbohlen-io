@@ -10,6 +10,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nixos-hardware, disko, home-manager, ... }: {
@@ -63,6 +68,9 @@
           disko.nixosModules.disko
           ./hosts/server/disko.nix
           ./hosts/server/configuration.nix
+
+          # Secrets management
+          sops-nix.nixosModules.sops
 
           # Home manager
           home-manager.nixosModules.home-manager
