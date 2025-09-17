@@ -1,71 +1,39 @@
-{ config, lib, pkgs, ... }:
-
+{ disko, ... }:
 {
   disko.devices = {
     disk = {
-      vda = {
+      nvme0n1 = {
         type = "disk";
-        device = "/dev/vda"; # Assuming a virtual disk for initial setup/testing
-        # For a real laptop, this would be something like "/dev/nvme0n1" or "/dev/sda"
-        # You would need to adjust this based on your actual hardware.
-        # For initial VM testing, /dev/vda is common.
-
-        # Optional: Enable encryption
-        # encryption = {
-        #   enable = true;
-        #   # You can specify a password or use a keyfile
-        #   # passwordFile = "/path/to/keyfile";
-        # };
-
-        # Optional: Enable LVM
-        # lvm = {
-        #   enable = true;
-        #   # volumeGroups = {
-        #   #   vgmain = {
-        #   #     type = "volumeGroup";
-        #   #     create = true;
-        #   #     logicalVolumes = {
-        #   #       root = {
-        #   #         size = "100%";
-        #   #         fs = {
-        #   #           type = "ext4";
-        #   #           mountpoint = "/";
-        #   #         };
-        #   #       };
-        #   #     };
-        #   #   };
-        #   # };
-        # };
-
-        # Define partitions
-        partitions = [
-          {
-            name = "boot";
-            size = "512M";
-            type = "partition";
-            fs = {
-              type = "fat32";
-              mountpoint = "/boot";
+        device = "/dev/nvme0n1";
+        content = {
+          type = "gpt";
+          partitions = {
+            ESP = {
+              size = "1G";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+              };
             };
-          }
-          {
-            name = "swap";
-            size = "8G"; # Example swap size
-            type = "partition";
-            fs = {
-              type = "swap";
+            swap = {
+              size = "16G";
+              content = {
+                type = "swap";
+                randomEncryption = true;
+              };
             };
-          }
-          {
-            name = "root";
-            size = "100%"; # Use remaining space
-            type = "partition";
-            fs = {
-              type = "ext4";
-              mountpoint = "/";
+            root = {
+              size = "100%";
+              content = {
+                type = "filesystem";
+                format = "btrfs";
+                mountpoint = "/";
+              };
             };
-          }
-        ];
+          };
+        };
       };
     };
   };

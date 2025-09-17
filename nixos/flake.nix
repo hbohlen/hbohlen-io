@@ -1,41 +1,51 @@
 {
-  description = "A personal NixOS configuration flake";
+  description = "Hayden's NixOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    disko.url = "github:nix-community/disko";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    disko = {
-      url = "github:nix-community/disko";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, disko, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, disko, home-manager, ... }: {
     nixosConfigurations = {
-      # Define your NixOS configurations here
-      # Example:
-      # laptop = nixpkgs.lib.nixosSystem {
-      #   system = "x86_64-linux";
-      #   modules = [
-      #     ./hosts/laptop/configuration.nix
-      #   ];
-      # };
+      laptop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          # Base hardware profile for ASUS Zephyrus M16
+          nixos-hardware.nixosModules.asus-zephyrus-gu603h
+
+          # Optional hardware module for battery control
+          nixos-hardware.nixosModules.asus-battery
+
+          # Disk configuration and main system config
+          disko.nixosModules.disko
+          ./hosts/laptop/disko.nix
+          ./hosts/laptop/configuration.nix
+
+          # Home manager
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.hbohlen = import ./users/hbohlen/home.nix;
+          }
+        ];
+      };
     };
 
     homeConfigurations = {
-      # Define your home-manager configurations here
-      # Example:
-      # hbohlen = home-manager.lib.homeManagerConfiguration {
-      #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      #   modules = [
-      #     ./users/hbohlen/home.nix
-      #   ];
-      # };
+      hbohlen = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [
+          ./users/hbohlen/home.nix
+        ];
+      };
     };
   };
 }
