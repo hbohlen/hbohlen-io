@@ -19,25 +19,7 @@
     extraModulePackages = [ ];
   };
 
-  # Allow unfree packages (for potential future NVIDIA drivers)
-  nixpkgs.config.allowUnfree = true;
-
-  # Host-specific networking # Allow unfree packages for NVIDIA drivers
-    nixpkgs.config.allowUnfree = true;
-  
-    # Essential Services and Daemons for this hardware
-    services = {
-      asusd.enable = true;
-      asusd.enableUserService = true;
-      supergfxd.enable = true;
-  
-      xserver = {
-        enable = true;
-        displayManager.gdm.enable = true;
-        desktopManager.gnome.enable = true;
-      };
-    };
-    systemd.services.supergfxd.path = [ pkgs.pciutils ];
+  # Host-specific networking
   networking.hostName = "desktop";
 
   # User account - add desktop-specific groups
@@ -55,14 +37,7 @@
     asusd.enable = true;
     asusd.enableUserService = true;
 
-    # Display Manager and Desktop Environment
-    xserver = {
-      enable = true;
-      displayManager.gdm.enable = true;
-      desktopManager.gnome.enable = true;
-    };
-
-    # Pipewire for audio
+    # Pipewire for audio (desktop-specific audio setup)
     pipewire = {
       enable = true;
       alsa.enable = true;
