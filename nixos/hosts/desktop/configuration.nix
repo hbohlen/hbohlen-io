@@ -55,8 +55,8 @@
       package = config.boot.kernelPackages.nvidiaPackages.stable;
     };
 
-    # Enable OpenGL
-    opengl.enable = true;
+    # Enable graphics
+    graphics.enable = true;
   };
 
   # Desktop-specific services

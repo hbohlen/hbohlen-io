@@ -31,7 +31,7 @@
     vivaldi
 
     # Password managers
-    _1password
+    _1password-cli
     _1password-gui
 
     # Development environments

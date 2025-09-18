@@ -49,7 +49,6 @@
      pkgs.gnupg
 
      # Text editors and tools
-     pkgs.neovim
      pkgs.vscode
 
      # Shell utilities
@@ -97,7 +96,15 @@
   };
 
    # SSH configuration
-   programs.ssh.enable = true;
+   programs.ssh = {
+     enable = true;
+     matchBlocks."*" = {
+       extraOptions = {
+         StrictHostKeyChecking = "no";
+         UserKnownHostsFile = "/dev/null";
+       };
+     };
+   };
 
    # Home Manager can also manage your environment variables through
    # 'home.sessionVariables'. If you don't want to manage your shell through Home
@@ -137,7 +144,7 @@
    programs.zsh = {
      enable = true;
      enableCompletion = true;
-     enableAutosuggestions = true;
+     autosuggestion.enable = true;
      syntaxHighlighting.enable = true;
 
      shellAliases = {
@@ -180,7 +187,7 @@
        pip = "python3 -m pip";
      };
 
-     initExtra = ''
+     initContent = ''
        # Custom functions
        mkcd() {
          mkdir -p "$1" && cd "$1"
