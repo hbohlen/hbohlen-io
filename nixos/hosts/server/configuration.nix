@@ -41,10 +41,10 @@
         PermitRootLogin = "no";
       };
     };
-
-    # Basic networking
-    networkmanager.enable = true;
   };
+
+  # Basic networking
+  networking.networkmanager.enable = true;
 
   # Server-specific packages
   environment.systemPackages = with pkgs; [
