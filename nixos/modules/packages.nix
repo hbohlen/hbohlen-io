@@ -23,12 +23,6 @@
     # Container tools
     podman-compose
 
-    # YubiKey support
-    yubikey-manager
-    yubikey-personalization
-    yubico-piv-tool
-    yubikey-agent
-    libyubikey
-    yubioath-flutter
+
   ];
 }

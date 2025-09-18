@@ -6,7 +6,6 @@
     ../../modules/common.nix
     ../../modules/users.nix
     ../../modules/packages.nix
-    ../../modules/yubikey.nix
   ];
 
   # Bootloader - hardware-specific kernel parameters
@@ -38,21 +37,6 @@
 
   # ASUS hardware-specific configuration
   hardware.asus.battery.chargeUpto = 80; # Set battery charge limit
-
-  # YubiKey configuration
-  hb.yubikey = {
-    enable = true;
-    ssh = {
-      enable = true;
-      agent.enable = true;
-    };
-    pam = {
-      enable = true;
-      sudo = true;  # Require YubiKey for sudo
-      login = false;  # Optional: set to true for login authentication
-    };
-    gpg.enable = true;
-  };
 
   # Podman container engine (laptop-specific)
   virtualisation.podman = {

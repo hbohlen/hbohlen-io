@@ -38,13 +38,8 @@
     # '';
   };
 
-  # SSH configuration for YubiKey
-  programs.ssh = {
-    enable = true;
-    extraConfig = ''
-      IdentityAgent ~/.yubikey-agent.sock
-    '';
-  };
+  # SSH configuration
+  programs.ssh.enable = true;
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. If you don't want to manage your shell through Home
@@ -62,7 +57,6 @@
   #  /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
   #
   home.sessionVariables = {
-    SSH_AUTH_SOCK = "$HOME/.yubikey-agent.sock";
   };
 
   # Let Home Manager install and manage itself.
