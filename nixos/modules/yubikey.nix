@@ -32,8 +32,6 @@ in
       yubikey-agent
       libyubikey
       yubikey-manager-qt
-    ] ++ optionals cfg.pam.enable [
-      pam_yubico
     ];
 
     # Enable PC/SC daemon for smart card support

@@ -27,7 +27,6 @@
     yubikey-manager
     yubikey-personalization
     yubico-piv-tool
-    pam_yubico
     yubikey-agent
     libyubikey
     yubikey-manager-qt
