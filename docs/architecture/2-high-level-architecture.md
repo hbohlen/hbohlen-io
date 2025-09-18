@@ -1,29 +1,37 @@
 # 2. High Level Architecture
 
 ## Technical Summary
-The system's architecture is a declarative monorepo built on the NixOS ecosystem, utilizing Flakes for hermetic dependency management. It is composed of modular components, including distinct host-specific profiles (laptop, desktop, servers), reusable shared modules for common software, and user-level configurations managed by `home-manager`. Key architectural patterns include a strict separation of hardware-specific concerns from general software configuration, declarative disk management via `disko`, and secure secret handling with `sops-nix`. This approach directly supports the PRD's primary goals of achieving a reproducible, consistent, and rapidly provisioned environment across multiple machines.
+The system is a production-ready declarative monorepo built on NixOS, utilizing Flakes for hermetic dependency management. It includes fully implemented host-specific profiles (ASUS Zephyrus laptop, MSI Z590 desktop, generic server), modular shared components, and home-manager user configurations. Key patterns include hardware abstraction, declarative disk management via disko, and secure secrets handling through 1Password CLI integration.
+
+## Current Implementation Status
+* **Completed Epics**: 1-3 (Foundational setup, Desktop config, Server deployment)
+* **Active Development**: Epic 4 (CI/CD automation) - planned
+* **Host Coverage**: Laptop (ASUS Zephyrus M16), Desktop (MSI Z590), Server (generic)
+* **Secrets Management**: 1Password CLI with automated retrieval
+* **Container Runtime**: Podman with Docker API compatibility
 
 ## High Level Overview
-* **Architectural Style**: The system employs a **Declarative Configuration** model, where the desired state of each machine is explicitly defined in code, and the Nix tooling is responsible for realizing that state.
-* **Repository Structure**: As specified in the PRD, the project will use a **Monorepo** structure to house all configurations for all target machines in a single version-controlled repository.
-* **Primary Data Flow**: The primary flow begins with the root `flake.nix`, which imports host-specific configurations. Each host configuration then composes shared modules and its own unique hardware settings to produce a final, bootable system derivation.
+* **Architectural Style**: **Implemented Declarative Configuration** - All systems are fully defined in code with reproducible builds
+* **Repository Structure**: **Active Monorepo** with modular organization and version control
+* **Primary Data Flow**: Root flake.nix orchestrates host configurations, each composing shared modules with hardware-specific overrides
 * **Key Architectural Decisions**:
-    * **Nix Flakes**: Chosen for providing hermetic, reproducible builds and managing all dependencies.
-    * **`disko` for Disk Management**: Enables fully declarative and automated partitioning.
-    * **`home-manager` Integration**: Ensures the entire user environment is reproducible.
+    * **Nix Flakes**: Provides hermetic, reproducible builds with version pinning
+    * **disko**: Enables declarative disk partitioning and automated installation
+    * **home-manager**: Ensures consistent user environments across hosts
+    * **1Password CLI**: Secure, user-friendly secrets management without complex key infrastructure
 
-## High Level Project Diagram
+## Current System Architecture Diagram
 ```mermaid
 graph TD
-    subgraph "GitHub Monorepo"
+    subgraph "NixOS Configuration"
         A[flake.nix] --> B{Host Profiles}
         A --> C(Shared Modules)
         A --> D(User Configs)
     end
 
-    B --> B1[Laptop]
-    B --> B2[Desktop]
-    B --> B3[Server]
+    B --> B1[ASUS Zephyrus Laptop]
+    B --> B2[MSI Z590 Desktop]
+    B --> B3[Generic Server]
 
     C --> B1
     C --> B2
@@ -33,34 +41,45 @@ graph TD
     D -- home-manager --> B2
     D -- home-manager --> B3
 
-    subgraph "Hardware-Specific Modules"
-        H1(Laptop Hardware)
-        H2(Desktop Hardware)
+    subgraph "Hardware Support"
+        H1[nixos-hardware: Zephyrus]
+        H2[ASUS Services: asusd]
+        H3[NVIDIA Drivers]
     end
 
     H1 --> B1
+    H2 --> B1
     H2 --> B2
+    H3 --> B2
 
-    subgraph "External Tools"
-        T1[disko]
-        T2[sops-nix]
+    subgraph "External Integrations"
+        T1[disko - Disk Mgmt]
+        T2[1Password CLI - Secrets]
+        T3[Podman - Containers]
     end
 
     T1 --> B1
     T1 --> B2
+    T1 --> B3
+    T2 --> B1
+    T2 --> B2
     T2 --> B3
+    T3 --> B1
+    T3 --> B2
+    T3 --> B3
 ```
 
 ## Architectural and Design Patterns
 * **Modular Configuration**: System definitions are broken into small, reusable Nix modules that can be composed to build a complete system.
-* **Separation of Concerns (Hardware vs. Software)**: Host configurations are explicitly divided between modules that define the software environment and modules that define hardware-specific needs.
+* **Hardware Abstraction**: Host configurations override shared defaults with hardware-specific settings.
 * **Declarative State Management**: Every aspect of the system is defined declaratively in Nix files.
+* **Version-Controlled Infrastructure**: Complete system history through git commits.
 
-## Known Risks and Mitigation Strategies
-* **Complexity Creep**: The "from scratch" approach requires discipline to prevent creating an overly complex web of custom modules. **Mitigation**: Adherence to the defined component structure and coding standards is critical.
-* **Secret Management Brittleness**: `sops-nix` introduces a dependency on key management. **Mitigation**: The process for onboarding new machines and users to the secret management system must be thoroughly documented in the `README.md`.
-* **Hardware-Specific Divergence**: Solutions for specific hardware (like the ASUS laptop) may require complex overrides. **Mitigation**: Keep hardware modules as isolated as possible and favor configuration flags over complex conditional logic in shared modules.
-* **Flake Update Burden**: Updating flake inputs like `nixpkgs` can cause a cascade of build failures. **Mitigation**: Updates should be done on a separate branch and thoroughly tested via the VM strategy before being merged.
+## Current Risks and Mitigation Strategies
+* **Hardware Compatibility**: ASUS-specific services and kernel parameters may require updates with hardware changes. **Mitigation**: Modular hardware configuration with clear documentation of ASUS-specific requirements.
+* **Secrets Management Dependency**: 1Password CLI availability affects automated deployments. **Mitigation**: Graceful fallback to manual secret entry, comprehensive documentation of 1Password setup process.
+* **NVIDIA Driver Updates**: Graphics driver changes can break desktop functionality. **Mitigation**: Pin specific driver versions, maintain backup kernel parameters, test graphics switching thoroughly.
+* **Multi-Host Configuration Drift**: Changes to shared modules may have unintended effects across hosts. **Mitigation**: Comprehensive testing of all host configurations before deployment, maintain separate branches for host-specific changes.
 
 ## Analysis of Diagram Flow and Dependencies
 The logical flow is one of **composition and specialization**. We start with a single root (`flake.nix`), define shared building blocks (`Shared Modules`, `User Configs`), and then compose them into specific `Host Profiles`, layering on hardware details and specialized tools only where required. This flow ensures maximum reusability and a clear dependency chain.

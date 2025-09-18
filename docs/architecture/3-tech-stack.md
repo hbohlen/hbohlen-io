@@ -1,21 +1,21 @@
 # 3. Tech Stack
 
-## Cloud Infrastructure
-* **Provider**: Provider Agnostic (Initial targets: Hetzner, DigitalOcean)
-* **Key Services**: Generic Compute (Linux VPS), Block Storage, DNS
-* **Deployment Regions**: User-defined at deployment time (e.g., `us-east`, `fsn1-dc14`)
+## Infrastructure Scope
+* **Deployment Target**: Local/personal infrastructure (laptop, desktop, home server)
+* **No Cloud Dependencies**: All systems run on local hardware
+* **Hardware Focus**: ASUS motherboard compatibility, NVIDIA graphics, general server requirements
 
-## Technology Stack Table
-| Category | Technology | Version | Purpose | Rationale |
-| :--- | :--- | :--- | :--- | :--- |
-| OS / Language | NixOS / Nix | `nixpkgs-24.05` | Declarative OS & package management | Core of the project for reproducibility. |
-| Config Mgmt | Nix Flakes | Stable | Hermetic builds & dependency mgmt | Provides true reproducibility and version pinning. |
-| User Env Mgmt | Home Manager | `0.40.0` | Declarative user dotfiles/packages | Ensures user environment is consistent across hosts. |
-| Disk Mgmt | `disko` | `0.4.0` | Declarative disk partitioning | Automates and reproduces disk layouts. |
-| Secrets Mgmt | `sops-nix` | `0.5.0` | Build-time secret decryption | Securely integrates secrets into the declarative build. |
-| Interactive Secrets| 1Password CLI | `2.26.1` | Interactive user secret access | Provides convenient access to personal vaults for non-system tasks. |
-| Version Control | Git | `2.45.1` | Source code management | Standard for version control. |
-| CI/CD | GitHub Actions| N/A | Automated testing and checks | Specified in PRD Epic 4 for future automation. |
-| VM Testing | NixOS VM Tests| N/A | Pre-deployment validation | Built-in NixOS feature for robust, automated testing. |
+## Current Technology Stack
+| Category | Technology | Version | Status | Purpose | Rationale |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| OS / Language | NixOS / Nix | Unstable | ✅ Implemented | Declarative OS & package management | Core platform providing reproducibility |
+| Config Mgmt | Nix Flakes | Latest | ✅ Implemented | Hermetic builds & dependency mgmt | Enables version-pinned, reproducible configurations |
+| User Env Mgmt | Home Manager | Latest | ✅ Implemented | Declarative user environments | Consistent user experience across hosts |
+| Disk Mgmt | `disko` | Latest | ✅ Implemented | Declarative partitioning | Automated, reproducible disk setup |
+| Secrets Mgmt | 1Password CLI | Latest | ✅ Implemented | Secure credential management | User-friendly secrets without complex key infrastructure |
+| Hardware Support | nixos-hardware | Latest | ✅ Implemented | ASUS hardware compatibility | Optimized configurations for specific hardware |
+| Container Runtime | Podman | Latest | ✅ Implemented | Application containers | Rootless containers with Docker API compatibility |
+| Version Control | Git | Latest | ✅ Implemented | Configuration versioning | Full history of system changes |
+| CI/CD | GitHub Actions | Latest | 🚧 Planned | Automated validation | Epic 4 implementation for testing automation |
 
 ---

@@ -1,4 +1,12 @@
 # 9. Error Handling Strategy
-The strategy relies on **Build-Time Validation** via the Nix evaluator, **Structured Logging** via `systemd-journald`, and the built-in **Rollback Strategy** for deployment failures. Long-term, this will be supplemented by a centralized observability platform like Datadog.
+Error handling relies on NixOS's robust mechanisms:
+
+- **Build-Time Validation**: Nix evaluator catches configuration errors before deployment
+- **Atomic Updates**: `nixos-rebuild switch` either succeeds completely or fails safely
+- **Instant Rollback**: `nixos-rebuild switch --rollback` reverts to previous working state
+- **Systemd Logging**: All service errors logged to `journalctl`
+- **Git History**: Complete configuration history for troubleshooting
+
+No centralized observability platform is currently implemented.
 
 ---

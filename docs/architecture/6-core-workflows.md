@@ -1,60 +1,48 @@
 # 6. Core Workflows
 
-## Workflow 1: New Machine Installation
+## Workflow 1: System Installation (Implemented)
 ```mermaid
 sequenceDiagram
     actor Administrator
-    participant InstallScript as "scripts/install.sh"
     participant LiveISO as "Target Machine (Live ISO)"
     participant GitHub
 
-    Administrator->>LiveISO: Boot into NixOS Installer
-    Administrator->>LiveISO: Run `nix-shell -p git`
-    LiveISO-->>Administrator: Provides temporary shell with git
-    Administrator->>LiveISO: git clone <repo_url>
-    Administrator->>InstallScript: Execute ./install.sh --flake .#<hostname>
+    Administrator->>LiveISO: Boot into NixOS minimal ISO
+    Administrator->>LiveISO: git clone https://github.com/hbohlen/hbohlen-io
+    Administrator->>LiveISO: cd hbohlen-io/nixos
+    Administrator->>LiveISO: nix run --experimental-features 'nix-command flakes' github:nix-community/disko/latest#disko-install -- --flake .#desktop --disk nvme1n1 /dev/nvme1n1
 
-    InstallScript->>GitHub: Fetch flake sources
-    InstallScript->>LiveISO: Run Pre-flight Checks (VMD, Disks)
-    alt Checks Pass
-        InstallScript->>LiveISO: Run disko to partition disks
-        InstallScript->>LiveISO: Run nixos-install for the flake target
-        InstallScript->>LiveISO: Run Post-flight Validation
-        InstallScript-->>Administrator: Log Success and prompt for reboot
-    else Checks Fail
-        InstallScript-->>Administrator: Log detailed error and exit
-    end
+    LiveISO->>GitHub: Fetch flake configuration
+    LiveISO->>LiveISO: disko partitions /dev/nvme1n1
+    LiveISO->>LiveISO: nixos-install builds system
+    LiveISO->>Administrator: Installation complete, reboot
+    Administrator->>LiveISO: reboot
+    LiveISO->>LiveISO: Boot into installed NixOS
 ```
 
-## Workflow 2: System Update and Rollback
+## Workflow 2: System Updates (Implemented)
 ```mermaid
 sequenceDiagram
     actor Administrator
     participant LocalRepo as "Local Git Repo"
     participant GitHub
-    participant TargetHost as "Target Host (e.g., Laptop)"
+    participant TargetHost as "Target Host"
 
-    Administrator->>LocalRepo: Edit Nix configuration
-    Administrator->>LocalRepo: git commit & git push
-    LocalRepo->>GitHub: Pushes changes
+    Administrator->>LocalRepo: Edit configuration (e.g., add package to packages.nix)
+    Administrator->>LocalRepo: git add && git commit
+    Administrator->>LocalRepo: git push origin main
+    LocalRepo->>GitHub: Updates repository
 
-    Administrator->>TargetHost: SSH into machine
+    Administrator->>TargetHost: SSH to target host
+    TargetHost->>GitHub: git pull latest changes
+    Administrator->>TargetHost: sudo nixos-rebuild switch
+    TargetHost->>TargetHost: Builds and activates new configuration
+    TargetHost-->>Administrator: System updated successfully
 
-    par Update and Rollback
-        section Update Process
-            TargetHost->>GitHub: git pull
-            Administrator->>TargetHost: sudo nixos-rebuild switch
-            TargetHost-->>Administrator: Activates new configuration
-        end
-
-        section Rollback Process
-            Administrator->>TargetHost: sudo nixos-rebuild switch --rollback
-            TargetHost-->>Administrator: Immediately activates previous configuration
-        end
-    end
+    Note over Administrator,TargetHost: Rollback available: sudo nixos-rebuild switch --rollback
 ```
 
-## Workflow 3: Updating a Shared Module
+## Workflow 3: Multi-Host Configuration Updates
 ```mermaid
 sequenceDiagram
     actor Administrator
@@ -62,20 +50,26 @@ sequenceDiagram
     participant GitHub
     participant Laptop
     participant Desktop
+    participant Server
 
-    Administrator->>LocalRepo: Edit a SHARED module (e.g., programs/development.nix)
-    Administrator->>LocalRepo: git commit & git push
-    LocalRepo->>GitHub: Pushes change to central repo
+    Administrator->>LocalRepo: Edit shared module (e.g., common.nix)
+    Administrator->>LocalRepo: git add && git commit
+    Administrator->>LocalRepo: git push origin main
+    LocalRepo->>GitHub: Updates repository
 
-    Note over Laptop,Desktop: At different times, on each machine...
+    par Update All Hosts
+        Administrator->>Laptop: git pull && sudo nixos-rebuild switch
+        Laptop->>GitHub: Pulls latest shared config
+        Laptop-->>Administrator: Laptop updated
 
-    Administrator->>Laptop: git pull && sudo nixos-rebuild switch
-    Laptop->>GitHub: Pulls latest config
-    Laptop-->>Administrator: Builds with updated shared module
+        Administrator->>Desktop: git pull && sudo nixos-rebuild switch
+        Desktop->>GitHub: Pulls latest shared config
+        Desktop-->>Administrator: Desktop updated
 
-    Administrator->>Desktop: git pull && sudo nixos-rebuild switch
-    Desktop->>GitHub: Pulls latest config
-    Desktop-->>Administrator: Builds with SAME updated shared module
+        Administrator->>Server: git pull && sudo nixos-rebuild switch
+        Server->>GitHub: Pulls latest shared config
+        Server-->>Administrator: Server updated
+    end
 ```
 
 ---

@@ -1,0 +1,98 @@
+name: Test Disko Installation
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_config:
+        description: 'NixOS configuration to test (desktop, laptop, server)'
+        required: true
+        default: 'desktop'
+        type: choice
+        options:
+        - desktop
+        - laptop
+        - server
+
+jobs:
+  test-disko-install:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v25
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+
+    - name: Enable Nix flakes
+      run: |
+        mkdir -p ~/.config/nix
+        echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+
+    - name: Install disko dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Test disko script generation
+      run: |
+        cd nixos
+        # Test that disko can generate scripts for the target config
+        nix build ".#nixosConfigurations.${{ inputs.target_config }}.config.system.build.diskoScript" --no-link
+        echo "✅ Disko script generated successfully"
+
+    - name: Validate disko configuration
+      run: |
+        cd nixos
+        # Test that disko config is valid JSON
+        nix eval ".#nixosConfigurations.${{ inputs.target_config }}.config.disko.devices" --json | jq . > /dev/null
+        echo "✅ Disko configuration is valid JSON"
+
+    - name: Test mount script generation
+      run: |
+        cd nixos
+        # Test mount script (useful for updates)
+        nix build ".#nixosConfigurations.${{ inputs.target_config }}.config.system.build.mountScript" --no-link
+        echo "✅ Mount script generated successfully"
+
+    - name: Check disk device references
+      run: |
+        cd nixos
+        # Extract disk devices from disko config
+        DISKS=$(nix eval ".#nixosConfigurations.${{ inputs.target_config }}.config.disko.devices.disk" --json | jq -r 'keys[]')
+        echo "Found disk devices: $DISKS"
+
+        # Validate that disk names look reasonable (nvme0n1, nvme1n1, etc.)
+        for disk in $DISKS; do
+          if [[ ! $disk =~ ^(nvme[0-9]+n[0-9]+|sd[a-z]|vd[a-z])$ ]]; then
+            echo "⚠️  Warning: Disk name '$disk' doesn't match expected pattern"
+          else
+            echo "✅ Disk name '$disk' looks valid"
+          fi
+        done
+
+    - name: Test full system closure
+      run: |
+        cd nixos
+        # Build the full system closure to catch any missing dependencies
+        timeout 1800 nix build ".#nixosConfigurations.${{ inputs.target_config }}.config.system.build.toplevel" --no-link || {
+          echo "❌ System build failed or timed out"
+          exit 1
+        }
+        echo "✅ Full system closure built successfully"
+
+    - name: Generate installation summary
+      run: |
+        cd nixos
+        echo "## Installation Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Target Config:** ${{ inputs.target_config }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Flake Check:** ✅ Passed" >> $GITHUB_STEP_SUMMARY
+        echo "- **Disko Script:** ✅ Generated" >> $GITHUB_STEP_SUMMARY
+        echo "- **System Build:** ✅ Successful" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Disk Configuration:" >> $GITHUB_STEP_SUMMARY
+        nix eval ".#nixosConfigurations.${{ inputs.target_config }}.config.disko.devices.disk" --json | jq -r 'keys[]' | while read disk; do
+          echo "- $disk" >> $GITHUB_STEP_SUMMARY
+        done

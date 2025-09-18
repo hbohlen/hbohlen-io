@@ -20,6 +20,9 @@
     # Desktop utilities
     gnome-tweaks
 
+    # Container tools
+    podman-compose
+
     # YubiKey support
     yubikey-manager
     yubikey-personalization

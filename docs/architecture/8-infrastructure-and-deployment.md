@@ -1,4 +1,11 @@
 # 8. Infrastructure and Deployment
-The primary Infrastructure as Code (IaC) is the Nix configuration itself. Deployment is handled via a Git-based promotion flow, where changes are merged to `main`, pulled on the target host, and activated with `nixos-rebuild switch`. Rollbacks are handled by NixOS's built-in generation management.
+The system uses NixOS configurations as Infrastructure as Code. Deployment follows a git-based workflow:
+
+- **Initial Installation**: `disko-install` for partitioning and system setup
+- **Updates**: `git pull` + `sudo nixos-rebuild switch` on target hosts
+- **Rollbacks**: `sudo nixos-rebuild switch --rollback` for immediate reversion
+- **Validation**: GitHub Actions CI/CD for configuration testing
+
+All infrastructure runs on local hardware with no cloud dependencies.
 
 ---

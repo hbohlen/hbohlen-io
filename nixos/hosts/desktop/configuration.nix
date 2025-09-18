@@ -27,7 +27,7 @@
   networking.hostName = "desktop";
 
   # User account - add desktop-specific groups
-  users.users.hbohlen.extraGroups = [ "libvirtd" "docker" ];
+  users.users.hbohlen.extraGroups = [ "libvirtd" ];
 
   # Hardware Configuration - desktop-specific
   hardware = {
@@ -47,6 +47,12 @@
 
   # Desktop-specific services
   services = {
+    # ASUS services (for ASUS motherboard compatibility)
+    asusd.enable = true;
+
+    # Graphics switching daemon for NVIDIA
+    supergfxd.enable = true;
+
     # Configure NVIDIA as primary GPU
     xserver.videoDrivers = [ "nvidia" ];
 
@@ -63,9 +69,16 @@
     pulseaudio.enable = false;
   };
 
+  # Path for supergfxd
+  systemd.services.supergfxd.path = [ pkgs.pciutils ];
+
   # Virtualization - desktop-specific
   virtualisation = {
     libvirtd.enable = true;
-    docker.enable = true;
+    podman = {
+      enable = true;
+      dockerCompat = true;  # Enable Docker API compatibility
+      dockerSocket.enable = true;
+    };
   };
 }

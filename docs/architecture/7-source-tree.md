@@ -5,30 +5,38 @@ hbohlen-io/
 ├── nixos/
 │   ├── flake.nix
 │   ├── flake.lock
-│   ├── README.md
-│   ├── .gitignore
-│   ├── secrets/
-│   │   └── secrets.yaml.sops
-│   ├── scripts/
-│   │   └── install.sh
 │   ├── hosts/
 │   │   ├── laptop/
 │   │   │   ├── configuration.nix
 │   │   │   └── disko.nix
-│   │   └── ... (desktop, server)
+│   │   ├── desktop/
+│   │   │   ├── configuration.nix
+│   │   │   └── disko.nix
+│   │   └── server/
+│   │       ├── configuration.nix
+│   │       └── disko.nix
 │   ├── modules/
-│   │   ├── hardware/
-│   │   ├── programs/
-│   │   ├── services/
-│   │   └── profiles/
+│   │   ├── common.nix
+│   │   ├── packages.nix
+│   │   ├── users.nix
+│   │   ├── secrets.nix
+│   │   └── yubikey.nix
 │   └── users/
 │       └── hbohlen/
-│           ├── home.nix
-│           └── dotfiles/
-├── apps/
-│   └── (Future projects and services will live here)
-└── packages/
-    └── (Future shared libraries will live here)
+│           └── home.nix
+├── docs/
+│   ├── architecture.md
+│   ├── prd/
+│   ├── stories/
+│   └── qa/
+├── scripts/
+│   ├── setup-1password-secrets.sh
+│   ├── setup-yubikey.sh
+│   └── test-yubikey.sh
+└── .github/
+    └── workflows/
+        ├── test-desktop-install.yml
+        └── test-disko-install.yml
 ```
 
 ---

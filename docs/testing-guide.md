@@ -34,21 +34,21 @@ home-manager build --flake .#hbohlen
 ### Current Configuration Status
 
 #### ✅ Laptop Configuration (ASUS Zephyrus M16)
-- **Hardware:** Intel 11th Gen + NVIDIA RTX 3050 Ti
-- **Features:** ASUS services, battery management, hybrid graphics
-- **Status:** Ready for deployment
+- **Hardware:** ASUS Zephyrus G15 + NVIDIA RTX 3060
+- **Features:** ASUS services, battery management (80% limit), hybrid graphics
+- **Status:** Deployed and tested
 - **Test Command:** `nixos-rebuild build --flake .#laptop`
 
 #### ✅ Desktop Configuration (MSI Z590)
-- **Hardware:** Intel 11th Gen + NVIDIA RTX 2070
-- **Features:** NVIDIA drivers, multiple displays, virtualization
+- **Hardware:** MSI Z590 + NVIDIA RTX 2070
+- **Features:** ASUS services, NVIDIA drivers, Podman containers, dual monitors
 - **Status:** Ready for deployment
 - **Test Command:** `nixos-rebuild build --flake .#desktop`
 
-#### ✅ Server Configuration (Generic VPS)
+#### ✅ Server Configuration (Generic)
 - **Hardware:** Generic x86_64 server
-- **Features:** SSH access, secrets management, headless operation
-- **Status:** Ready for deployment (requires secrets encryption)
+- **Features:** SSH access, 1Password secrets integration, headless operation
+- **Status:** Deployed and tested
 - **Test Command:** `nixos-rebuild build --flake .#server`
 
 ## Testing Checklist
@@ -64,11 +64,12 @@ home-manager build --flake .#hbohlen
 - [ ] Desktop: NVIDIA drivers load properly
 - [ ] Server: SSH access works with key authentication
 
-### Secrets Testing (Server Only)
-- [ ] Age key is properly configured
-- [ ] Secrets file is encrypted
-- [ ] Secrets decrypt during build
-- [ ] Secret files have correct permissions
+### Secrets Testing (Server/Desktop)
+- [ ] 1Password CLI is authenticated
+- [ ] Required secrets exist in 1Password vault
+- [ ] Secrets retrieval script runs successfully
+- [ ] Generated secrets.yaml is properly formatted
+- [ ] Secrets load correctly in NixOS configuration
 
 ## Troubleshooting
 
@@ -86,13 +87,16 @@ export NIX_CONFIG="experimental-features = nix-command flakes"
 nix-shell -p git nixFlakes
 ```
 
-#### 3. SOPS decryption failures
+#### 3. 1Password CLI failures
 ```bash
-# Check Age key configuration
-age-keygen -o ~/.config/sops/age/keys.txt
+# Check 1Password CLI authentication
+op account list
 
-# Verify .sops.yaml configuration
-cat .sops.yaml
+# Test secrets retrieval
+./scripts/setup-1password-secrets.sh
+
+# Verify vault access
+op vault list
 ```
 
 #### 4. Hardware-specific failures
@@ -125,8 +129,14 @@ nixos-rebuild build-vm --flake .#server
 
 ### Remote Deployment Testing
 ```bash
-# Test nixos-anywhere dry run
-nixos-anywhere --flake .#server --target-host root@server.example.com --dry-run
+# Test disko-install dry run (via GitHub Actions)
+# See .github/workflows/test-disko-install.yml
+
+# Manual testing with disko-install
+sudo nix run --experimental-features 'nix-command flakes' \
+  'github:nix-community/disko/latest#disko-install' \
+  -- --flake .#server \
+  --disk nvme0n1 /dev/nvme0n1
 ```
 
 ## Performance Testing

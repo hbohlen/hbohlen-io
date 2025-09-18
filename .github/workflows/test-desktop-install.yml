@@ -1,0 +1,75 @@
+name: Test Desktop Installation
+
+on:
+  push:
+    paths:
+      - 'nixos/hosts/desktop/**'
+      - 'nixos/modules/**'
+      - 'nixos/flake.nix'
+  pull_request:
+    paths:
+      - 'nixos/hosts/desktop/**'
+      - 'nixos/modules/**'
+      - 'nixos/flake.nix'
+
+jobs:
+  test-desktop-config:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v25
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+
+    - name: Enable Nix flakes
+      run: |
+        mkdir -p ~/.config/nix
+        echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+
+    - name: Cache Nix store
+      uses: actions/cache@v3
+      with:
+        path: /tmp/nix-cache
+        key: nix-${{ runner.os }}-${{ hashFiles('nixos/flake.lock') }}
+        restore-keys: |
+          nix-${{ runner.os }}-
+
+    - name: Test flake validity
+      run: |
+        cd nixos
+        nix flake check
+
+    - name: Build desktop configuration
+      run: |
+        cd nixos
+        nix build .#nixosConfigurations.desktop.config.system.build.toplevel --no-link
+
+    - name: Test disko configuration syntax
+      run: |
+        cd nixos
+        # Test that disko config can be evaluated
+        nix eval .#nixosConfigurations.desktop.config.disko.devices --json > /dev/null
+
+    - name: Validate desktop-specific modules
+      run: |
+        cd nixos
+        # Test that all imported modules can be evaluated
+        nix eval .#nixosConfigurations.desktop.config.services.asusd.enable --json
+        nix eval .#nixosConfigurations.desktop.config.services.supergfxd.enable --json
+        nix eval .#nixosConfigurations.desktop.config.virtualisation.podman.enable --json
+
+    - name: Check for common NixOS configuration errors
+      run: |
+        cd nixos
+        # Test that the configuration doesn't have obvious issues
+        nix build .#nixosConfigurations.desktop.config.system.build.etc --no-link
+
+    - name: Test home-manager configuration
+      run: |
+        cd nixos
+        # Test that home-manager config builds
+        nix build .#homeConfigurations.hbohlen.activationPackage --no-link

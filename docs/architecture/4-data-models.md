@@ -1,18 +1,23 @@
 # 4. Data Models
 
-## Host
-* **Purpose**: Represents a single, complete, and buildable machine configuration.
-* **Attributes**: `name`, `system`, `modules`, `users`, `diskConfig`.
-* **Relationships**: A Host is composed of Modules, has Users, and may use Secrets and a Hardware-Specific Module.
+## Host Configuration
+* **Purpose**: Defines a complete, buildable machine configuration for specific hardware
+* **Attributes**: `hostname`, `system`, `hardwareModules`, `sharedModules`, `userConfig`, `diskLayout`
+* **Relationships**: Each host imports shared modules, hardware-specific modules, and user configurations
 
-## User
-* **Purpose**: Represents a user account and their environment managed by Home Manager.
-* **Attributes**: `username`, `homeDirectory`, `shell`, `packages`, `dotfiles`.
-* **Relationships**: A User belongs to one or more Hosts and has one Home Manager Configuration.
+## User Environment
+* **Purpose**: Manages user accounts and home directory configurations via home-manager
+* **Attributes**: `username`, `groups`, `initialPassword`, `homeConfig`, `packages`
+* **Relationships**: User configurations are shared across compatible hosts with host-specific overrides
 
-## Module
-* **Purpose**: Represents a self-contained and reusable unit of configuration.
-* **Attributes**: `name`, `type` ('Shared' or 'Hardware-Specific'), `path`, `configuration`.
-* **Relationships**: A Module can be imported by Hosts and can be composed of other Modules.
+## Shared Module
+* **Purpose**: Reusable configuration components that work across multiple hosts
+* **Attributes**: `name`, `services`, `packages`, `systemConfig`
+* **Examples**: `common.nix` (base system), `packages.nix` (shared tools), `users.nix` (account setup)
+
+## Secrets Configuration
+* **Purpose**: Manages sensitive data retrieval and system integration
+* **Attributes**: `secretType`, `source` (1Password), `targetPath`, `permissions`
+* **Implementation**: 1Password CLI integration with YAML-based secret definitions
 
 ---

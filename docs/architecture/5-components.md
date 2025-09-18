@@ -1,66 +1,76 @@
 # 5. Components
 
-## Hosts Component
-* **Responsibility**: Contains the top-level, final configurations for each target machine.
-* **Interfaces**: Exposes a `nixosConfigurations.<hostname>` output in the root `flake.nix`.
+## Host Configurations
+* **Responsibility**: Defines complete system configurations for each target machine
+* **Structure**: `hosts/{laptop,desktop,server}/` with `configuration.nix` and `disko.nix`
+* **Interfaces**: Available as `nixosConfigurations.<hostname>` in flake outputs
 
-## Modules Component
-* **Responsibility**: The core library containing all reusable and specialized units of configuration.
-* **Sub-Components**: Organized into `hardware/`, `programs/`, `services/`, and `profiles/`.
+## Shared Modules
+* **Responsibility**: Provides reusable configuration components across all hosts
+* **Current Modules**:
+  - `common.nix`: Base system configuration (GNOME, networking, security)
+  - `packages.nix`: System-wide packages (development tools, YubiKey support)
+  - `users.nix`: User account configuration
+  - `secrets.nix`: Secret management framework
+  - `yubikey.nix`: YubiKey authentication support
 
-## Users Component
-* **Responsibility**: Contains all user-specific configurations, managed by Home Manager.
+## User Management
+* **Responsibility**: Manages user environments and home directory configurations
+* **Structure**: `users/hbohlen/` with `home.nix` for home-manager configuration
+* **Integration**: Applied to all hosts via flake configuration
 
-## Secrets Component
-* **Responsibility**: Manages all encrypted sensitive data for the system using `sops-nix`.
+## Secrets Management
+* **Responsibility**: Handles secure credential management across hosts
+* **Implementation**: 1Password CLI integration with automated secret retrieval
+* **Security**: No secrets stored in repository, runtime retrieval only
 
-## Scripts Component
-* **Responsibility**: Contains operational and automation scripts like `install.sh`.
-
-## Component Diagram
+## Current Component Architecture
 ```mermaid
 graph TD
-    subgraph "NixOS Monorepo"
-        A[flake.nix]
-
-        subgraph hosts
-            direction LR
-            H1[laptop]
-            H2[desktop]
-            H3[server]
-        end
-
-        subgraph modules
-            direction LR
-            M1[hardware/]
-            M2[programs/]
-            M3[services/]
-            M4[profiles/]
-        end
-
-        subgraph users
-            direction LR
-            U1[hbohlen/]
-        end
-
-        subgraph secrets
-            S1[secrets.yaml.sops]
-        end
-
-        subgraph scripts
-            SC1[install.sh]
-        end
-
-        A -- orchestrates --> hosts
-        A -- orchestrates --> modules
-        A -- orchestrates --> users
-
-        hosts -- imports from --> modules
-        hosts -- imports from --> users
-        H3 -- needs --> secrets
-
-        scripts -- operates on --> A
+    subgraph "NixOS Configuration"
+        A[flake.nix] --> B{Host Profiles}
+        A --> C(Shared Modules)
+        A --> D(User Configs)
     end
+
+    B --> B1[ASUS Zephyrus Laptop]
+    B --> B2[MSI Z590 Desktop]
+    B --> B3[Generic Server]
+
+    C --> B1
+    C --> B2
+    C --> B3
+
+    D -- home-manager --> B1
+    D -- home-manager --> B2
+    D -- home-manager --> B3
+
+    subgraph "Hardware Support"
+        H1[nixos-hardware: Zephyrus]
+        H2[ASUS Services: asusd]
+        H3[NVIDIA Drivers]
+    end
+
+    H1 --> B1
+    H2 --> B1
+    H2 --> B2
+    H3 --> B2
+
+    subgraph "External Integrations"
+        T1[disko - Disk Mgmt]
+        T2[1Password CLI - Secrets]
+        T3[Podman - Containers]
+    end
+
+    T1 --> B1
+    T1 --> B2
+    T1 --> B3
+    T2 --> B1
+    T2 --> B2
+    T2 --> B3
+    T3 --> B1
+    T3 --> B2
+    T3 --> B3
 ```
 
 ---
