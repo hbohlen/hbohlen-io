@@ -7,6 +7,9 @@
     # Development tools
     git
     vim
+    neovim
+    zed-editor
+    vscode
 
     # System utilities
     wget
@@ -22,7 +25,20 @@
 
     # Container tools
     podman-compose
+    podman-desktop
 
+    # Web browsers
+    vivaldi
+
+    # Password managers
+    _1password
+    _1password-gui
+
+    # Development environments
+    devbox # Development environment tool
+
+    # Note taking and productivity
+    affine # Affine Pro note taking app
 
   ];
 }
