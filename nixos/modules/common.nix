@@ -4,7 +4,7 @@
 {
   # Bootloader - basic setup (hardware-specific params handled in host configs)
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages;
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
