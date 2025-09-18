@@ -79,7 +79,7 @@ in
     programs.gnupg.agent = mkIf cfg.gpg.enable {
       enable = true;
       enableSSHSupport = true;
-      pinentryFlavor = "gtk2";
+      pinentryPackage = pkgs.pinentry-gtk2;
     };
 
     # Environment variables for SSH
