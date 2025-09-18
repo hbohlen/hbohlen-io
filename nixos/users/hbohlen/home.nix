@@ -29,7 +29,7 @@
      pkgs.ripgrep
      pkgs.fd
      pkgs.bat
-     pkgs.exa
+     pkgs.eza
      pkgs.fzf
      pkgs.tldr
      pkgs.htop
