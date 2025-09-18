@@ -31,7 +31,7 @@ in
       yubico-piv-tool
       yubikey-agent
       libyubikey
-      yubikey-manager-qt
+      yubioath-flutter
     ];
 
     # Enable PC/SC daemon for smart card support

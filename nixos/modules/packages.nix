@@ -29,6 +29,6 @@
     yubico-piv-tool
     yubikey-agent
     libyubikey
-    yubikey-manager-qt
+    yubioath-flutter
   ];
 }
