@@ -3,6 +3,7 @@
 {
   # Import shared modules
   imports = [
+    ../../modules/common.nix
     ../../modules/users.nix
     ../../modules/packages.nix
   ];
@@ -10,26 +11,11 @@
   # Secrets are managed via 1Password CLI
   # Run scripts/setup-1password-secrets.sh to retrieve secrets
 
-  # Bootloader - server-specific
-  boot = {
-    kernelPackages = pkgs.linuxPackages;
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
-  };
-
   # Host-specific settings
   networking.hostName = "server";
 
   # User account - add server-specific groups
   users.users.hbohlen.extraGroups = [ ];
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # Enable modern Nix features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Essential server services
   services = {
@@ -41,14 +27,16 @@
         PermitRootLogin = "no";
       };
     };
+
+    # Disable GUI services for server
+    xserver.enable = false;
+    displayManager.gdm.enable = false;
+    desktopManager.gnome.enable = false;
   };
 
-  # Basic networking
-  networking.networkmanager.enable = true;
-
-  # Server-specific packages
+  # Server-specific packages (minimal)
   environment.systemPackages = with pkgs; [
-    # System utilities (in addition to common packages)
+    # Server-specific utilities (in addition to common packages)
     htop
     curl
     wget
@@ -62,12 +50,4 @@
     ripgrep
     fd
   ];
-
-  # Security
-  security = {
-    sudo.enable = true;
-  };
-
-  # System state version
-  system.stateVersion = "24.05";
 }
