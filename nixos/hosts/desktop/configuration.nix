@@ -22,7 +22,22 @@
   # Allow unfree packages (for potential future NVIDIA drivers)
   nixpkgs.config.allowUnfree = true;
 
-  # Host-specific networking
+  # Host-specific networking # Allow unfree packages for NVIDIA drivers
+    nixpkgs.config.allowUnfree = true;
+  
+    # Essential Services and Daemons for this hardware
+    services = {
+      asusd.enable = true;
+      asusd.enableUserService = true;
+      supergfxd.enable = true;
+  
+      xserver = {
+        enable = true;
+        displayManager.gdm.enable = true;
+        desktopManager.gnome.enable = true;
+      };
+    };
+    systemd.services.supergfxd.path = [ pkgs.pciutils ];
   networking.hostName = "desktop";
 
   # User account - add desktop-specific groups
