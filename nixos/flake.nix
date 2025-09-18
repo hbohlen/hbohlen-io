@@ -11,13 +11,21 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, disko, home-manager, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, disko, home-manager, sops-nix, ... }:
+  let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
     nixosConfigurations = {
       laptop = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
+        specialArgs = { inherit home-manager sops-nix; };
         modules = [
           # Base hardware profile for ASUS Zephyrus M16
           nixos-hardware.nixosModules.asus-zephyrus-gu603h
@@ -30,6 +38,9 @@
           ./hosts/laptop/disko.nix
           ./hosts/laptop/configuration.nix
 
+          # Secrets management
+          sops-nix.nixosModules.sops
+
           # Home manager
           home-manager.nixosModules.home-manager
           {
@@ -41,12 +52,16 @@
       };
 
       desktop = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
+        specialArgs = { inherit home-manager sops-nix; };
         modules = [
           # Disk configuration and main system config
           disko.nixosModules.disko
           ./hosts/desktop/disko.nix
           ./hosts/desktop/configuration.nix
+
+          # Secrets management
+          sops-nix.nixosModules.sops
 
           # Home manager
           home-manager.nixosModules.home-manager
@@ -59,12 +74,16 @@
       };
 
       server = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
+        specialArgs = { inherit home-manager sops-nix; };
         modules = [
           # Disk configuration and main system config
           disko.nixosModules.disko
           ./hosts/server/disko.nix
           ./hosts/server/configuration.nix
+
+          # Secrets management
+          sops-nix.nixosModules.sops
 
           # Home manager
           home-manager.nixosModules.home-manager
@@ -79,7 +98,7 @@
 
     homeConfigurations = {
       hbohlen = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = nixpkgs.legacyPackages.${system};
         modules = [
           ./users/hbohlen/home.nix
         ];

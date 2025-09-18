@@ -15,9 +15,9 @@
   # release notes.
   home.stateVersion = "24.05"; # Please read the comment before changing.
 
-   # The home.packages option allows you to install Nix packages into your
-   # environment.
-   home.packages = [
+  # The home.packages option allows you to install Nix packages into your
+  # environment.
+  home.packages = [
      # Development tools
      pkgs.git
      pkgs.curl
@@ -95,8 +95,8 @@
     # '';
   };
 
-   # SSH configuration
-   programs.ssh = {
+  # SSH configuration
+  programs.ssh = {
      enable = true;
      matchBlocks."*" = {
        extraOptions = {
@@ -106,7 +106,7 @@
      };
    };
 
-   # Home Manager can also manage your environment variables through
+  # Home Manager can also manage your environment variables through
    # 'home.sessionVariables'. If you don't want to manage your shell through Home
    # Manager then you have to manually source 'hm-session-vars.sh' located at
    # either
@@ -128,8 +128,8 @@
      LESS = "-R";
    };
 
-   # Git configuration
-   programs.git = {
+  # Git configuration
+  programs.git = {
      enable = true;
      userName = "Hayden Bohlen";
      userEmail = "hbohlen@gmail.com";
@@ -140,8 +140,8 @@
      };
    };
 
-   # Zsh shell configuration
-   programs.zsh = {
+  # Zsh shell configuration
+  programs.zsh = {
      enable = true;
      enableCompletion = true;
      autosuggestion.enable = true;
@@ -171,16 +171,16 @@
        gb = "git branch";
 
        # Nix aliases
-       nrs = "sudo nixos-rebuild switch";
-       nrt = "sudo nixos-rebuild test";
-       nrb = "sudo nixos-rebuild boot";
-       hms = "home-manager switch";
-       hmt = "home-manager test";
+       nrs = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io/nixos";
+       nrt = "sudo nixos-rebuild test --flake $HOME/hbohlen-io/nixos";
+       nrb = "sudo nixos-rebuild boot --flake $HOME/hbohlen-io/nixos";
+       hms = "home-manager switch --flake $HOME/hbohlen-io/nixos#hbohlen";
+       hmt = "home-manager build --flake $HOME/hbohlen-io/nixos#hbohlen";
 
-        # Rebuild aliases for different hosts
-        rebuild-laptop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#laptop";
-        rebuild-desktop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#desktop";
-        rebuild-server = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#server";
+      # Rebuild aliases for different hosts
+      rebuild-laptop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io/nixos#laptop";
+      rebuild-desktop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io/nixos#desktop";
+      rebuild-server = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io/nixos#server";
 
        # Development
        py = "python3";
@@ -197,23 +197,35 @@
        rebuild() {
          if [ -z "$1" ]; then
            echo "Usage: rebuild <host> [action]"
-           echo "Hosts: laptop, desktop, server"
-           echo "Actions: switch (default), test, boot"
+           echo "Hosts: laptop, desktop, server, home"
+           echo "Actions: switch (default), test, boot, build"
            return 1
          fi
 
          local host="$1"
          local action="''${2:-switch}"
-          local flake_path="$HOME/hbohlen-io"
+         local flake_path="$HOME/hbohlen-io/nixos"
 
          case "$host" in
            laptop|desktop|server)
              echo "🔄 Rebuilding $host with action: $action"
-             sudo nixos-rebuild "$action" --flake "$flake_path#$host"
+             if [[ "$action" == "build" ]]; then
+               nixos-rebuild build --flake "$flake_path#$host"
+             else
+               sudo nixos-rebuild "$action" --flake "$flake_path#$host"
+             fi
+             ;;
+           home|hm)
+             echo "🏠 Rebuilding home-manager configuration"
+             if [[ "$action" == "switch" ]]; then
+               home-manager switch --flake "$flake_path#hbohlen"
+             else
+               home-manager "$action" --flake "$flake_path#hbohlen"
+             fi
              ;;
            *)
              echo "❌ Unknown host: $host"
-             echo "Available hosts: laptop, desktop, server"
+             echo "Available hosts: laptop, desktop, server, home"
              return 1
              ;;
          esac
