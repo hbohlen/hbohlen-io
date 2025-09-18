@@ -32,10 +32,10 @@
       displayManager.gdm.enable = true;
       desktopManager.gnome.enable = true;
     };
-
-    # Network Manager
-    networkmanager.enable = true;
   };
+
+  # Network Manager
+  networking.networkmanager.enable = true;
 
   # Security
   security = {
