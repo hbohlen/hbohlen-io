@@ -49,9 +49,6 @@
     pulseaudio.enable = false;
   };
 
-  # Path for supergfxd
-  systemd.services.supergfxd.path = [ pkgs.pciutils ];
-
   # Virtualization - desktop-specific
   virtualisation = {
     libvirtd.enable = true;
