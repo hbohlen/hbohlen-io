@@ -19,6 +19,9 @@
     extraModulePackages = [ ];
   };
 
+  # Allow unfree packages (for potential future NVIDIA drivers)
+  nixpkgs.config.allowUnfree = true;
+
   # Host-specific networking
   networking.hostName = "desktop";
 
@@ -35,6 +38,14 @@
   services = {
     # ASUS services (for ASUS motherboard compatibility)
     asusd.enable = true;
+    asusd.enableUserService = true;
+
+    # Display Manager and Desktop Environment
+    xserver = {
+      enable = true;
+      displayManager.gdm.enable = true;
+      desktopManager.gnome.enable = true;
+    };
 
     # Pipewire for audio
     pipewire = {
