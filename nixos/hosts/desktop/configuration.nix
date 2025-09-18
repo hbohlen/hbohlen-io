@@ -10,10 +10,14 @@
 
   # Bootloader - hardware-specific kernel parameters and modules
   boot = {
-    # Kernel parameters for MSI Z590 + Intel graphics
+    # Kernel parameters for MSI Z590 + NVIDIA graphics
     kernelParams = [
       "quiet"
       "splash"
+      # NVIDIA specific parameters for better multi-monitor support
+      "nvidia.NVreg_EnableBacklightHandler=0"
+      "nvidia.NVReg_RegistryDwords=EnableBrightnessControl=0"
+      "nvidia_drm.modeset=1"
     ];
 
     extraModulePackages = [ ];
@@ -29,6 +33,30 @@
   hardware = {
     # CPU microcode updates
     cpu.intel.updateMicrocode = true;
+
+    # NVIDIA Graphics
+    nvidia = {
+      # Enable NVIDIA drivers
+      modesetting.enable = true;
+
+      # Enable NVIDIA power management
+      powerManagement.enable = true;
+
+      # Enable NVIDIA power management for mobile GPUs
+      powerManagement.finegrained = false;
+
+      # Use open source kernel module (recommended)
+      open = false;
+
+      # Enable NVIDIA settings
+      nvidiaSettings = true;
+
+      # Package to use (latest is usually best)
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+    };
+
+    # Enable OpenGL
+    opengl.enable = true;
   };
 
   # Desktop-specific services
@@ -48,6 +76,17 @@
 
     # Disable PulseAudio (using Pipewire instead)
     pulseaudio.enable = false;
+
+    # X11 configuration for NVIDIA
+    xserver = {
+      # Enable X11
+      enable = true;
+
+      # Configure X11 for NVIDIA
+      videoDrivers = [ "nvidia" ];
+
+      # Display manager and desktop are configured in common.nix
+    };
   };
 
   # Virtualization - desktop-specific
