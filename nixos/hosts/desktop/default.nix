@@ -52,8 +52,7 @@
       package = config.boot.kernelPackages.nvidiaPackages.stable;
     };
 
-    # Enable graphics
-    graphics.enable = true;
+    
   };
 
   # Desktop-specific services
@@ -71,8 +70,7 @@
       jack.enable = true;
     };
 
-    # Disable PulseAudio (using Pipewire instead)
-    pulseaudio.enable = false;
+    
 
     # X11 configuration for NVIDIA
     xserver = {
@@ -103,6 +101,7 @@
       "/var/lib/caddy"
       "/var/lib/tailscale"
       "/var/lib/libvirt"
+      "/var/lib/nixos"
     ];
     files = [
       "/etc/machine-id"
@@ -111,5 +110,21 @@
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
     ];
+    users.hbohlen = {
+      directories = [
+        "Documents"
+        "Downloads"
+        "Music"
+        "Pictures"
+        "Videos"
+        ".config"
+        ".local"
+        ".ssh"
+        ".gnupg"
+        ".cache"
+        ".steam"
+        ".var"
+      ];
+    };
   };
 }

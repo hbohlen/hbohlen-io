@@ -33,9 +33,6 @@
       desktopManager.gnome.enable = true;
     };
     
-    # Printing support
-    printing.enable = true;
-    
     # Sound with pipewire
     pipewire = {
       enable = true;
@@ -70,30 +67,10 @@
     shell = pkgs.zsh;
   };
 
-  # Basic packages for all systems
-  environment.systemPackages = with pkgs; [
-    # Basic utilities
-    git
-    curl
-    wget
-    vim
-    htop
-    btop
-    tree
-    ripgrep
-    fd
-    bat
-    eza
-    jq
-    yq
-    
-    # Shell
-    zsh
-    starship
-    
-    # Network tools
-    networkmanager-applet
-  ];
+  # Enable zsh shell
+  programs.zsh.enable = true;
+
+  # Basic packages are now in packages.nix
 
   # System state version
   system.stateVersion = "24.05";

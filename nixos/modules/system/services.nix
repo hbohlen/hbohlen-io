@@ -6,11 +6,7 @@
     # Enable Flatpak for additional applications
     flatpak.enable = true;
     
-    # Enable Bluetooth
-    bluetooth = {
-      enable = true;
-      powerOnBoot = true;
-    };
+    # Bluetooth is handled by hardware.bluetooth
     
     # Enable CUPS for printing
     printing.enable = true;
@@ -26,7 +22,7 @@
     gnome.gnome-keyring.enable = true;
     
     # Enable system tray
-    xserver.libinput.enable = true;
+    libinput.enable = true;
     
     # Enable location services
     geoclue2.enable = true;
@@ -55,12 +51,7 @@
     # Enable Tailscale for mesh networking
     tailscale.enable = true;
     
-    # Enable firewall
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [ 22 80 443 ];
-      allowedUDPPorts = [ ];
-    };
+    # Firewall is configured in common.nix
   };
   
   # Enable virtualization
@@ -92,18 +83,6 @@
     # Enable seahorse for password management
     seahorse.enable = true;
     
-    # Enable file manager extensions
-    gnome-file-roller.enable = true;
-    
-    # Enable archive tools
-    archive-tools.enable = true;
-    
-    # Enable appimage support
-    appimage = {
-      enable = true;
-      binfmt = true;
-    };
-    
     # Enable steam for gaming
     steam = {
       enable = true;
@@ -116,9 +95,6 @@
     
     # Enable Android development tools
     adb.enable = true;
-    
-    # Enable k3b for CD/DVD burning
-    k3b.enable = true;
     
     # Enable Wireshark for network analysis
     wireshark.enable = true;
@@ -135,9 +111,6 @@
       driSupport = true;
       driSupport32Bit = true;
     };
-    
-    # Enable OpenCL
-    opencl.enable = true;
     
     # Enable CPU microcode updates
     cpu = {

@@ -8,7 +8,6 @@
     git
     vim
     neovim
-    zed-editor
     vscode
 
     # System utilities
@@ -21,7 +20,6 @@
     usbutils
 
     # Desktop utilities
-    gnome-tweaks
 
     # Container tools
     podman-compose
@@ -31,7 +29,6 @@
     vivaldi
 
     # Password managers
-    _1password-cli
     _1password-gui
 
     # Development environments

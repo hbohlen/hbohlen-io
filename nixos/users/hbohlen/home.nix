@@ -43,14 +43,14 @@
      pkgs.cargo
 
      # Security and secrets
-     pkgs._1password-cli
+     pkgs._1password-gui
      pkgs.sops
      pkgs.age
      pkgs.gnupg
 
      # Text editors and tools
      pkgs.vscode
-     pkgs.opencode
+     
 
      # Shell utilities
      pkgs.zsh
@@ -133,7 +133,7 @@
    programs.git = {
      enable = true;
      userName = "Hayden Bohlen";
-     userEmail = "hbohlen@gmail.com";
+     userEmail = "bohlenhayden@gmail.com";
      extraConfig = {
        init.defaultBranch = "main";
        pull.rebase = true;
@@ -183,7 +183,7 @@
        pip = "python3 -m pip";
      };
 
-     initContent = ''
+     initExtra = ''
        # Custom functions
        mkcd() {
          mkdir -p "$1" && cd "$1"
@@ -361,15 +361,7 @@
      nix-direnv.enable = true;
    };
 
-   # OpenCode AI Assistant configuration
-   programs.opencode = {
-     enable = true;
-     settings = {
-       theme = "opencode";
-       autoshare = false;
-       autoupdate = true;
-     };
-   };
+
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

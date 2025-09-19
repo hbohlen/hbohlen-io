@@ -51,17 +51,19 @@
           # Host configuration
           ./hosts/laptop/default.nix
           ./hosts/laptop/hardware-configuration.nix
+          ./hosts/laptop/disko.nix
           
           # Shared system modules
           ./modules/system/common.nix
           ./modules/system/packages.nix
+          ./modules/system/services.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./users/hbohlen/home.nix;
           }
         ];
       };
@@ -76,17 +78,19 @@
           # Host configuration
           ./hosts/desktop/default.nix
           ./hosts/desktop/hardware-configuration.nix
+          ./hosts/desktop/disko.nix
           
           # Shared system modules
           ./modules/system/common.nix
           ./modules/system/packages.nix
+          ./modules/system/services.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./users/hbohlen/home.nix;
           }
         ];
       };
@@ -101,17 +105,19 @@
           # Host configuration
           ./hosts/server/default.nix
           ./hosts/server/hardware-configuration.nix
+          ./hosts/server/disko.nix
           
           # Shared system modules
           ./modules/system/common.nix
           ./modules/system/packages.nix
+          ./modules/system/services.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./users/hbohlen/home.nix;
           }
         ];
       };

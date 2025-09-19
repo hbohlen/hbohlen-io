@@ -3,18 +3,16 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./disko.nix
   ];
 
   # Host-specific settings
   networking.hostName = "server";
 
   # Bootloader - server-specific
-  boot = {
-    kernelPackages = pkgs.linuxPackages;
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
   };
 
   # User account - add server-specific groups
@@ -47,6 +45,7 @@
       "/var/lib/caddy"
       "/var/lib/tailscale"
       "/var/lib/acme"
+      "/var/lib/nixos"
     ];
     files = [
       "/etc/machine-id"
@@ -55,5 +54,19 @@
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
     ];
+    users.hbohlen = {
+      directories = [
+        "Documents"
+        "Downloads"
+        "Music"
+        "Pictures"
+        "Videos"
+        ".config"
+        ".local"
+        ".ssh"
+        ".gnupg"
+        ".cache"
+      ];
+    };
   };
 }
