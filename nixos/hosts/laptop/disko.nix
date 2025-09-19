@@ -1,3 +1,6 @@
+# nixos/hosts/laptop/disko.nix
+{ config, lib, pkgs, ... }:
+
 {
   disko.devices = {
     disk = {
@@ -16,13 +19,38 @@
                 mountpoint = "/boot";
               };
             };
-            root = {
+            # LVM partition that will take the rest of the space
+            lvm = {
               size = "100%";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/";
+                type = "lvm_pv";
+                vg = "vg0"; # Volume group name
               };
+            };
+          };
+        };
+      };
+    };
+    lvm_vg = {
+      vg0 = { # This must match the vg name above
+        type = "lvm_vg";
+        lvs = {
+          # Root logical volume
+          root = {
+            size = "100G"; # Adjust size as needed
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/";
+            };
+          };
+          # Persistent storage logical volume for impermanence
+          persist = {
+            size = "100%FREE"; # Use all remaining space
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/persist";
             };
           };
         };
