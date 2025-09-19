@@ -49,19 +49,20 @@
           disko.nixosModules.disko
           
           # Host configuration
-          ./hosts/laptop/default.nix
-          ./hosts/laptop/hardware-configuration.nix
+          ./nixos/hosts/laptop/default.nix
+          ./nixos/hosts/laptop/hardware-configuration.nix
+          ./nixos/hosts/laptop/disko.nix
           
           # Shared system modules
-          ./modules/system/common.nix
-          ./modules/system/packages.nix
+          ./nixos/modules/system/common.nix
+          ./nixos/modules/system/packages.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./nixos/users/hbohlen/home.nix;
           }
         ];
       };
@@ -74,19 +75,20 @@
           disko.nixosModules.disko
           
           # Host configuration
-          ./hosts/desktop/default.nix
-          ./hosts/desktop/hardware-configuration.nix
+          ./nixos/hosts/desktop/default.nix
+          ./nixos/hosts/desktop/hardware-configuration.nix
+          ./nixos/hosts/desktop/disko.nix
           
           # Shared system modules
-          ./modules/system/common.nix
-          ./modules/system/packages.nix
+          ./nixos/modules/system/common.nix
+          ./nixos/modules/system/packages.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./nixos/users/hbohlen/home.nix;
           }
         ];
       };
@@ -99,19 +101,20 @@
           disko.nixosModules.disko
           
           # Host configuration
-          ./hosts/server/default.nix
-          ./hosts/server/hardware-configuration.nix
+          ./nixos/hosts/server/default.nix
+          ./nixos/hosts/server/hardware-configuration.nix
+          ./nixos/hosts/server/disko.nix
           
           # Shared system modules
-          ./modules/system/common.nix
-          ./modules/system/packages.nix
+          ./nixos/modules/system/common.nix
+          ./nixos/modules/system/packages.nix
           
           # Home manager
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.hbohlen = ./users/hbohlen;
+            home-manager.users.hbohlen = ./nixos/users/hbohlen/home.nix;
           }
         ];
       };
@@ -125,7 +128,7 @@
           {
             nixpkgs.config.allowUnfree = true;
           }
-          ./users/hbohlen/home.nix
+          ./nixos/users/hbohlen/home.nix
         ];
       };
     };

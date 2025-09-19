@@ -50,6 +50,7 @@
 
      # Text editors and tools
      pkgs.vscode
+     pkgs.opencode
 
      # Shell utilities
      pkgs.zsh
@@ -177,11 +178,6 @@
        hms = "home-manager switch";
        hmt = "home-manager test";
 
-        # Rebuild aliases for different hosts
-        rebuild-laptop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#laptop";
-        rebuild-desktop = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#desktop";
-        rebuild-server = "sudo nixos-rebuild switch --flake $HOME/hbohlen-io#server";
-
        # Development
        py = "python3";
        pip = "python3 -m pip";
@@ -204,7 +200,7 @@
 
          local host="$1"
          local action="''${2:-switch}"
-          local flake_path="$HOME/hbohlen-io"
+          local flake_path="$HOME/hbohlen-io/nixos"
 
          case "$host" in
            laptop|desktop|server)
@@ -363,6 +359,16 @@
      enable = true;
      enableZshIntegration = true;
      nix-direnv.enable = true;
+   };
+
+   # OpenCode AI Assistant configuration
+   programs.opencode = {
+     enable = true;
+     settings = {
+       theme = "opencode";
+       autoshare = false;
+       autoupdate = true;
+     };
    };
 
   # Let Home Manager install and manage itself.

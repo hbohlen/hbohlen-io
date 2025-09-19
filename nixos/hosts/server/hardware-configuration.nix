@@ -1,11 +1,10 @@
-{ config, lib, pkgs, ... }:
-
+{ disko, ... }:
 {
   disko.devices = {
     disk = {
-      main = {
+      vda = {
         type = "disk";
-        device = "/dev/sda";
+        device = "/dev/vda"; # Generic virtual disk (common in VPS)
         content = {
           type = "gpt";
           partitions = {

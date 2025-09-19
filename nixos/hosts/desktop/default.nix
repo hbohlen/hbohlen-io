@@ -1,12 +1,12 @@
 { config, pkgs, ... }:
 
 {
-  # Import shared modules
   imports = [
-    ../../modules/common.nix
-    ../../modules/users.nix
-    ../../modules/packages.nix
+    ./hardware-configuration.nix
   ];
+
+  # Host-specific networking
+  networking.hostName = "desktop";
 
   # Bootloader - hardware-specific kernel parameters and modules
   boot = {
@@ -22,9 +22,6 @@
 
     extraModulePackages = [ ];
   };
-
-  # Host-specific networking
-  networking.hostName = "desktop";
 
   # User account - add desktop-specific groups
   users.users.hbohlen.extraGroups = [ "libvirtd" ];
@@ -92,10 +89,27 @@
   # Virtualization - desktop-specific
   virtualisation = {
     libvirtd.enable = true;
-    podman = {
-      enable = true;
-      dockerCompat = true;  # Enable Docker API compatibility
-      dockerSocket.enable = true;
-    };
+  };
+
+  # Persistence configuration for impermanence
+  environment.persistence."/persist/system" = {
+    directories = [
+      "/var/log"
+      "/var/lib/bluetooth"
+      "/var/lib/NetworkManager"
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/systemd/coredump"
+      "/var/lib/containers"
+      "/var/lib/caddy"
+      "/var/lib/tailscale"
+      "/var/lib/libvirt"
+    ];
+    files = [
+      "/etc/machine-id"
+      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/ssh_host_ed25519_key.pub"
+      "/etc/ssh/ssh_host_rsa_key"
+      "/etc/ssh/ssh_host_rsa_key.pub"
+    ];
   };
 }

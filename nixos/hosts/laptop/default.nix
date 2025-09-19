@@ -1,12 +1,12 @@
 { config, pkgs, ... }:
 
 {
-  # Import shared modules
   imports = [
-    ../../modules/common.nix
-    ../../modules/users.nix
-    ../../modules/packages.nix
+    ./hardware-configuration.nix
   ];
+
+  # Host-specific settings
+  networking.hostName = "laptop";
 
   # Bootloader - hardware-specific kernel parameters
   boot = {
@@ -20,9 +20,6 @@
     ];
   };
 
-  # Host-specific settings
-  networking.hostName = "laptop";
-
   # User account - add laptop-specific groups
   users.users.hbohlen.extraGroups = [ "libvirtd" ];
 
@@ -31,17 +28,30 @@
     asusd.enable = true;
     asusd.enableUserService = true;
     supergfxd.enable = true;
-
   };
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
 
   # ASUS hardware-specific configuration
   hardware.asus.battery.chargeUpto = 80; # Set battery charge limit
 
-  # Podman container engine (laptop-specific)
-  virtualisation.podman = {
-    enable = true;
-    dockerCompat = true;
-    defaultNetwork.settings.dns_enabled = true;
+  # Persistence configuration for impermanence
+  environment.persistence."/persist/system" = {
+    directories = [
+      "/var/log"
+      "/var/lib/bluetooth"
+      "/var/lib/NetworkManager"
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/systemd/coredump"
+      "/var/lib/containers"
+      "/var/lib/caddy"
+      "/var/lib/tailscale"
+    ];
+    files = [
+      "/etc/machine-id"
+      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/ssh_host_ed25519_key.pub"
+      "/etc/ssh/ssh_host_rsa_key"
+      "/etc/ssh/ssh_host_rsa_key.pub"
+    ];
   };
 }

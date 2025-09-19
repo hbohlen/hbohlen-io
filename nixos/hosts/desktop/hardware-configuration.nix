@@ -1,11 +1,10 @@
-{ config, lib, pkgs, ... }:
-
+{ disko, ... }:
 {
   disko.devices = {
     disk = {
-      main = {
+      nvme1n1 = {
         type = "disk";
-        device = "/dev/sda";
+        device = "/dev/nvme1n1";
         content = {
           type = "gpt";
           partitions = {
@@ -18,12 +17,20 @@
                 mountpoint = "/boot";
               };
             };
+            swap = {
+              size = "32G"; # Larger swap for desktop with 64GB RAM
+              content = {
+                type = "swap";
+                randomEncryption = true;
+              };
+            };
             root = {
               size = "100%";
               content = {
                 type = "filesystem";
-                format = "ext4";
+                format = "btrfs";
                 mountpoint = "/";
+                extraArgs = [ "-f" ]; # Force format (will wipe existing Ubuntu)
               };
             };
           };
