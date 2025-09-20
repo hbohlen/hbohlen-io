@@ -42,12 +42,19 @@
             ]
         },
         "filesystem": {
-			"type": "local",
-			"command": [
-				"npx",
-				"-y",
-				"@modelcontextprotocol/server-filesystem"
-			]
-		},
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "@modelcontextprotocol/server-filesystem"
+            ]
+        },
+        "nixos": {
+            "type": "local",
+            "command": [
+                "uvx",
+                "mcp-nixos"
+            ]
+        }
     }
 }

@@ -34,6 +34,7 @@
         nixpkgs-fmt
         statix
         deadnix
+        qemu
       ];
     };
     nixosConfigurations = {
@@ -118,12 +119,37 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.hbohlen = ./users/hbohlen/home.nix;
-          }
-        ];
-      };
-    };
+           }
+         ];
+       };
 
-    # Legacy home configuration (will be migrated to per-host)
+       test-vm = nixpkgs.lib.nixosSystem {
+         system = "x86_64-linux";
+         modules = [
+           # Core modules
+           impermanence.nixosModules.impermanence
+           disko.nixosModules.disko
+
+           # Test VM configuration
+           ./test-environments/test-vm.nix
+
+           # Shared system modules
+           ./modules/system/common.nix
+           ./modules/system/packages.nix
+           ./modules/system/services.nix
+
+           # Home manager
+           home-manager.nixosModules.home-manager
+           {
+             home-manager.useGlobalPkgs = true;
+             home-manager.useUserPackages = true;
+             home-manager.users.hbohlen = ./users/hbohlen/home.nix;
+           }
+         ];
+       };
+     };
+
+     # Legacy home configuration (will be migrated to per-host)
     homeConfigurations = {
       hbohlen = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
